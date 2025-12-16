@@ -1,0 +1,752 @@
+:root{
+  --bg:#F7F3EE;
+  --card:#FFFDFB;
+  --accent:#F7C9A6;
+  --accent-2:#FFE7D6;
+  --primary:#E35F00;
+  --muted:#6b6b6b;
+  --soft:#C6B9AF;
+  --radius:16px;
+  --shadow:0 10px 30px rgba(18,18,18,0.06);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+.dark {
+  --bg:#1f2937;
+  --card:#111827;
+  --accent:#7c4a2e;
+  --accent-2:#6b4a3a;
+  --primary:#FFB37A;
+  --muted:#cbd5e1;
+  color: #e6eef8;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+html,body {
+  height:100%;
+}
+
+body {
+  margin:0;
+  background:linear-gradient(180deg,var(--bg),#ffffff);
+  color:#222;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+
+.container {
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px;
+}
+
+/* Header */
+header {
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.35));
+  box-shadow:0 4px 14px rgba(0,0,0,0.04);
+}
+
+header, .topbar{
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: rgba(255,255,255,.92);  /* opasitas dinaikkan */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+.topbar {
+  display:flex;
+  align-items:center;
+  padding:14px 20px;
+}
+
+.brand {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  font-weight:800;
+  color:var(--primary);
+}
+
+.brand .logo {
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  overflow:hidden;
+}
+
+nav {
+  margin-left:auto;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+nav a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background 0.2s ease, color 0.2s ease; /* biar halus */
+}
+
+/* NAVBAR tetap 1 baris, tidak pecah kata */
+nav{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:nowrap;          /* <<< jangan wrap */
+  overflow-x:auto;           /* <<< kalau kepanjangan, scroll ke samping */
+  white-space:nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+nav a, nav button{
+  white-space:nowrap;
+  flex:0 0 auto;             /* <<< jangan ikut mengecil aneh */
+}
+
+/* opsional: scrollbar tipis */
+nav::-webkit-scrollbar{ height:6px; }
+
+
+/* link nav yang sedang aktif */
+nav a.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* versi dark mode */
+body.dark nav a.active {
+  background: #f97316;      /* oranye */
+  color: #020617;           /* teks gelap */
+}
+
+
+.cta {
+  background:white;
+  border-radius:10px;
+  padding:8px 12px;
+  color:var(--primary);
+  font-weight:700;
+  text-decoration:none;
+}
+
+.auth-btn {
+  background:var(--primary);
+  color:white;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* Hero */
+.hero {
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:28px;
+  align-items:center;
+  margin:26px 0;
+}
+
+.hero-card {
+  background:linear-gradient(180deg,#fff,#fff8f3);
+  padding:28px;
+  border-radius:18px;
+  box-shadow:var(--shadow);
+}
+
+.hero-card h1 {
+  margin:0 0 12px;
+  color:var(--primary);
+  font-size:26px;
+}
+
+.hero-card p {
+  color:var(--muted);
+  margin:0 0 14px;
+}
+
+.searchbar {
+  display:flex;
+  gap:10px;
+  margin-top:8px;
+}
+
+.searchbar input {
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #eee;
+}
+
+.searchbar button {
+  padding:10px 14px;
+  border-radius:12px;
+  border:none;
+  background:var(--primary);
+  color:white;
+  cursor:pointer;
+}
+
+.hero-aside img {
+  width:100%;
+  max-width:320px;
+  border-radius:16px;
+  object-fit:cover;
+}
+
+/* Categories */
+.categories {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:18px 0;
+}
+
+.cat {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:10px;
+  border-radius:12px;
+  background:linear-gradient(180deg,#fff,#fff7f0);
+  box-shadow:0 6px 18px rgba(0,0,0,0.04);
+}
+
+.cat img {
+  width:48px;
+  height:48px;
+  border-radius:8px;
+  object-fit:cover;
+}
+
+/* Section titles & grids */
+.section-title {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:18px 0;
+}
+
+.grid {
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  margin-top:12px;
+}
+
+/* Card */
+.card {
+  background:var(--card);
+  padding:14px;
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  transition:transform .18s;
+}
+
+.card:hover {
+  transform:translateY(-6px);
+}
+
+/* dasar semua gambar kartu: dipakai produk & default */
+.thumb {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 14px;
+  aspect-ratio: 4 / 3;        /* produk jadi tidak terlalu tinggi */
+}
+
+
+/* ==== FIX GAMBAR GROOMING BIAR TIDAK KEPOTONG ==== */
+/* ==== GROOMING: besar, gak kepotong tulisan ==== */
+.card-grooming .thumb {
+  aspect-ratio: 4 / 5;        /* lebih tinggi dari produk */
+  object-fit: cover;          /* penuh, nggak ada kotak putih */
+  object-position: 50% 15%;   /* 50% = tengah kiri-kanan, 15% = agak naik ke atas */
+  border-radius: 14px;
+}
+
+
+/* khusus PAKET GROOMING – sedikit lebih tinggi, biar gambar kelihatan besar */
+.card-grooming .thumb {
+  aspect-ratio: 5 / 4;        /* lebih tinggi dikit dari produk, tapi nggak kebesaran */
+}
+
+/* khusus PENITIPAN HEWAN – tetap landscape lebar */
+.card-boarding .thumb {
+  aspect-ratio: 16 / 9;
+}
+
+
+.card h3 {
+  margin:0 0 6px;
+  color:var(--primary);
+  font-size:16px;
+}
+
+.card p {
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.meta {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+.price {
+  font-weight:800;
+  color:var(--primary);
+}
+
+.btn {
+  padding:8px 12px;
+  border-radius:10px;
+  border:none;
+  background:var(--accent);
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn.secondary {
+  background:transparent;
+  border:1px solid #f2d8c9;
+  color:var(--primary);
+}
+
+/* cart */
+.cart-btn {
+  position:relative;
+}
+
+.cart-count {
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  background:#ff3b30;
+  color:white;
+  border-radius:50%;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+}
+
+/* About & blog */
+.about {
+  background:linear-gradient(180deg,#fff7ed,#fff);
+  padding:18px;
+  border-radius:12px;
+  margin:22px 0;
+}
+
+/* Footer */
+footer {
+  padding:24px;
+  text-align:center;
+  color:var(--muted);
+  margin-top:28px;
+}
+
+/* Modals & screens */
+.screen {
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(10,10,10,0.35);
+  z-index:9999;
+}
+
+.modal {
+  background:var(--card);
+  padding:18px;
+  border-radius:12px;
+  width:520px;
+  max-width:95%;
+  box-shadow:0 18px 50px rgba(0,0,0,0.2);
+}
+
+.auth-field {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:10px;
+  border:1px solid #eee;
+}
+
+.avatar-preview {
+  display:block;
+  margin:8px auto 0;
+  width:88px;
+  height:88px;
+  object-fit:cover;
+  border-radius:50%;
+}
+
+.small {
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* Toast */
+#toast {
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:var(--primary);
+  color:white;
+  padding:12px 16px;
+  border-radius:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.2);
+  display:none;
+  z-index:2000;
+}
+
+/* Responsive */
+@media(max-width:980px){
+  .hero{
+    grid-template-columns:1fr;
+  }
+  .hero-aside{
+    margin-top:12px;
+  }
+}
+
+@media(max-width:600px){
+  nav a{
+    display:none;
+  }
+  .topbar{
+    padding:10px;
+  }
+}
+/* === PRODUK LAYOUT (Fixed version) === */
+
+.products-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr; /* sidebar kiri, produk kanan */
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .products-layout {
+    grid-template-columns: 1fr; /* di HP jadi 1 kolom */
+  }
+}
+
+/* Agar grid produk selalu rapi ke samping */
+.products-layout #productsGrid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* Sidebar */
+.product-filter {
+  min-width: 220px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f9f4ee;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.product-filter h3 {
+  margin-bottom: 10px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ==== FIX STYLING QTY DI KERANJANG ==== */
+#cartItems div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+#cartItems input[type="number"] {
+  width: 60px;
+  height: 34px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  font-size: 14px;
+}
+
+/* Label Qty biar lebih rapi */
+#cartItems .small {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tombol hapus */
+#cartItems button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+/* Biar setiap item punya jarak bawah */
+#cartItems > div {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* =========================
+   DARK MODE TUNING
+   ========================= */
+
+/* dasar */
+body.dark {
+  background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #020617 100%);
+  color: #e5e7eb;
+}
+
+/* header & nav */
+body.dark header {
+  background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.9));
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+body.dark nav a {
+  color: #e5e7eb;
+}
+
+body.dark .cta {
+  background: #0b1120;
+  color: var(--primary);
+}
+
+body.dark .auth-btn {
+  background: var(--primary);
+  color: #0b1120;
+}
+
+/* hero & kategori */
+body.dark .hero-card {
+  background: linear-gradient(180deg, #020617, #020617);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+}
+
+body.dark .hero-card p {
+  color: #9ca3af;
+}
+
+body.dark .hero-aside img {
+  box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+}
+
+body.dark .categories .cat {
+  background: linear-gradient(180deg, #020617, #020617);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.75);
+}
+
+/* input & search */
+body.dark .searchbar input,
+body.dark .auth-field {
+  background: #020617;
+  border: 1px solid #374151;
+  color: #e5e7eb;
+}
+
+body.dark .searchbar input::placeholder,
+body.dark .auth-field::placeholder {
+  color: #6b7280;
+}
+
+/* kartu umum + sidebar produk */
+body.dark .card,
+body.dark .product-filter,
+body.dark .about,
+body.dark .modal {
+  background: #020617;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+}
+
+body.dark .card p,
+body.dark .small {
+  color: #9ca3af;
+}
+
+/* tombol */
+body.dark .btn {
+  background: var(--accent);
+  color: #1f2937;
+}
+
+body.dark .btn.secondary {
+  background: transparent;
+  border-color: #475569;
+  color: #e5e7eb;
+}
+
+/* badge keranjang */
+body.dark .cart-count {
+  box-shadow: 0 0 0 2px #020617;
+}
+
+/* footer */
+body.dark footer {
+  color: #9ca3af;
+}
+
+/* sidebar filter */
+body.dark .product-filter {
+  background: #020617;
+}
+
+body.dark .filter-btn.active {
+  background: var(--primary);
+  color: #020617;
+}
+
+/* toast di dark mode */
+body.dark #toast {
+  background: #0f172a;
+  color: #f9fafb;
+}
+
+/* =========================
+   DARK MODE (Glass Navy)
+   ========================= */
+
+body.dark {
+  background: #0a0f1a; /* lebih terang dari sebelumnya */
+  color: #e5e7eb;
+}
+
+/* HEADER */
+body.dark header {
+  background: rgba(22, 32, 50, 0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* NAV */
+body.dark nav a {
+  color: #f1f5f9;
+}
+
+/* HERO BOX */
+body.dark .hero-card {
+  background: rgba(24, 33, 48, 0.85);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+body.dark .hero-card p {
+  color: #cbd5e1;
+}
+
+/* KATEGORI */
+body.dark .categories .cat {
+  background: rgba(26, 39, 57, 0.9);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.45);
+}
+
+/* SIDEBAR PRODUK */
+body.dark .product-filter {
+  background: rgba(21, 30, 46, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+body.dark .filter-btn {
+  background: rgba(255,255,255,0.05);
+  color: #e2e8f0;
+}
+
+body.dark .filter-btn.active {
+  background: var(--primary);
+  color: #0f172a;
+}
+
+/* CARD PRODUK / GROOMING / BOARDING */
+body.dark .card {
+  background: rgba(22, 32, 50, 0.94);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+}
+
+body.dark .card h3 {
+  color: #f8fafc;
+}
+
+body.dark .card p {
+  color: #cbd5e1;
+}
+
+body.dark .price {
+  color: var(--primary);
+}
+
+/* INPUT & SEARCH */
+body.dark .searchbar input {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #f1f5f9;
+}
+
+body.dark .searchbar button {
+  background: var(--primary);
+  color: #0f172a;
+}
+
+/* MODAL */
+body.dark .modal {
+  background: rgba(20, 29, 47, 0.96);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* FOOTER */
+body.dark footer {
+  color: #8fa3c8;
+}
+
+/* TOAST */
+body.dark #toast {
+  background: #1e293b;
+  color: #f8fafc;
+}

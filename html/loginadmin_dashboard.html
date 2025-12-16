@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Pet Paw</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h2 { margin-bottom: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 7px;
+    }
+    th { background: #f2f2f2; }
+    button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      margin-right: 4px;
+    }
+    .btn-danger {
+      background: red;
+      color: white;
+      border: none;
+    }
+    .btn-add {
+      background: green;
+      color: white;
+      border: none;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Dropzone upload gambar */
+    .drop-zone {
+      border: 2px dashed #777;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      margin: 8px 0 16px;
+      transition: background 0.2s;
+    }
+    .drop-zone.drop-over {
+      background: #f7f7f7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h2>Admin Dashboard — Pet Paw</h2>
+  <button onclick="logoutAdmin()" class="btn-danger">Logout</button>
+</div>
+
+<p>Kelola Produk, Grooming, dan Penitipan</p>
+
+<hr>
+
+<!-- TABS -->
+<button class="btn" onclick="showTab('produk')">Produk</button>
+<button class="btn" onclick="showTab('grooming')">Grooming</button>
+<button class="btn" onclick="showTab('boarding')">Penitipan</button>
+<button class="btn-add" onclick="showTab('add')">Tambah Item</button>
+
+<hr>
+
+<div id="content"></div>
+
+<script>
+// ====== CEK LOGIN ADMIN (masih pakai localStorage) ======
+if (!localStorage.getItem("admin_logged")) {
+  alert("Harus login admin dulu!");
+  window.location.href = "index.html";
+}
+
+let CURRENT_TYPE = "product";   // product | grooming | boarding
+
+// ====== Helper: ambil data dari API ======
+function loadItems(type) {
+  CURRENT_TYPE = type;
+  const box = document.getElementById("content");
+  box.innerHTML = "<p>Memuat data...</p>";
+
+  fetch(`../api/get_items.php?type=${encodeURIComponent(type)}`)
+    .then(r => r.json())
+    .then(data => {
+      box.innerHTML = renderTable(data, type);
+    })
+    .catch(err => {
+      console.error(err);
+      box.innerHTML = "<p>Gagal memuat data dari server.</p>";
+    });
+}
+
+// ====== Tampilkan tab ======
+function showTab(tab) {
+  const box = document.getElementById("content");
+
+  if (tab === "produk") {
+    loadItems("product");
+  } else if (tab === "grooming") {
+    loadItems("grooming");
+  } else if (tab === "boarding") {
+    loadItems("boarding");
+  } else if (tab === "add") {
+    box.innerHTML = renderAddForm();
+    initAddForm(); // aktifkan event submit + drag-drop
+  }
+}
+
+// ====== Render tabel dari data API ======
+function renderTable(list, type) {
+  let title = "Produk";
+  if (type === "grooming") title = "GROOMING";
+  if (type === "boarding") title = "PENITIPAN";
+
+  let html = `
+    <h3>Daftar ${title}</h3>
+    <table>
+      <tr>
+        <th>Nama</th>
+        <th>Harga</th>
+        <th>Deskripsi</th>
+        <th>Aksi</th>
+      </tr>
+  `;
+
+  (list || []).forEach(item => {
+    html += `
+      <tr>
+        <td>${item.title}</td>
+        <td>Rp ${Number(item.price || 0).toLocaleString()}</td>
+        <td>${item.description || ""}</td>
+        <td>
+          <button class="btn-danger" onclick="deleteItem('${item.id}','${type}')">
+            Hapus
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += "</table>";
+  return html;
+}
+
+// ====== Form tambah item (pakai upload gambar) ======
+function renderAddForm() {
+  return `
+    <h3>Tambah Item Baru</h3>
+    <form id="addItemForm" enctype="multipart/form-data">
+      <label>Nama item:</label>
+      <input name="title" id="newTitle" style="width:100%;padding:5px" required><br><br>
+
+      <label>Harga:</label>
+      <input name="price" id="newPrice" type="number" style="width:100%;padding:5px" required><br><br>
+
+      <label>Deskripsi:</label>
+      <textarea name="description" id="newDesc" style="width:100%;padding:5px"></textarea><br><br>
+
+      <label>Gambar:</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" name="image" id="newImg" accept="image/*" hidden>
+        <span id="dropText">Tarik & lepaskan gambar di sini, atau klik untuk pilih</span>
+      </div>
+
+      <label>Kategori:</label>
+      <select name="type" id="newCat" style="padding:5px">
+        <option value="product">Produk</option>
+        <option value="grooming">Grooming</option>
+        <option value="boarding">Penitipan</option>
+      </select>
+      <br><br>
+
+      <button type="submit" class="btn-add">Tambah</button>
+    </form>
+  `;
+}
+
+// ====== Aktivasi submit form + drag & drop ======
+function initAddForm() {
+  const form     = document.getElementById("addItemForm");
+  const dropZone = document.getElementById("dropZone");
+  const fileInp  = document.getElementById("newImg");
+  const dropText = document.getElementById("dropText");
+
+  if (!form) return;
+
+  // Submit form -> kirim ke add_item.php
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById("newTitle").value.trim();
+    const price = document.getElementById("newPrice").value;
+
+    if (!title || !price) {
+      alert("Nama dan harga wajib diisi");
+      return;
+    }
+
+    const fd = new FormData(form); // otomatis ambil title, price, description, type, image
+
+    fetch("../api/add_item.php", {
+      method: "POST",
+      body: fd
+    })
+    .then(r => r.json())
+    .then(d => {
+      alert(d.message || (d.status === "success" ? "Item berhasil ditambahkan" : "Gagal menambah item"));
+
+      if (d.status === "success") {
+        form.reset();
+        if (dropText) dropText.textContent = "Tarik & lepaskan gambar di sini, atau klik untuk pilih";
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Terjadi error saat menyimpan item ke server.");
+    });
+  });
+
+  // ---- Drag & Drop gambar ----
+  if (dropZone && fileInp) {
+    // klik box => buka file chooser
+    dropZone.addEventListener("click", () => fileInp.click());
+
+    fileInp.addEventListener("change", () => {
+      if (fileInp.files && fileInp.files[0] && dropText) {
+        dropText.textContent = fileInp.files[0].name;
+      }
+    });
+
+    ["dragenter","dragover"].forEach(ev => {
+      dropZone.addEventListener(ev, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("drop-over");
+      });
+    });
+
+    ["dragleave","dragend","drop"].forEach(ev => {
+      dropZone.addEventListener(ev, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("drop-over");
+      });
+    });
+
+    dropZone.addEventListener("drop", e => {
+      const files = e.dataTransfer.files;
+      if (files && files.length) {
+        fileInp.files = files; // set ke input file
+        if (dropText) dropText.textContent = files[0].name;
+      }
+    });
+  }
+}
+
+// ====== Hapus item (via delete_item.php) ======
+function deleteItem(id, type) {
+  if (!confirm("Hapus item ini?")) return;
+
+  const fd = new FormData();
+  fd.append("id", id);
+  fd.append("type", type);
+
+  fetch("../api/delete_item.php", {
+    method: "POST",
+    body: fd
+  })
+  .then(r => r.json())
+  .then(d => {
+    alert(d.message || (d.status === "success" ? "Item dihapus" : "Gagal menghapus item"));
+    if (d.status === "success") {
+      loadItems(type); // refresh tabel
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Terjadi error saat menghapus item.");
+  });
+}
+
+// ====== Logout admin ======
+function logoutAdmin() {
+  localStorage.removeItem("admin_logged");
+  window.location.href = "index.html";
+}
+
+// default tab
+showTab("produk");
+</script>
+
+</body>
+</html>

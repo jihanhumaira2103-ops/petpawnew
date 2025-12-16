@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Pesanan — Pet Paw</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 7px; font-size: 14px; vertical-align: top; }
+    th { background: #f2f2f2; }
+    .btn { padding: 4px 8px; cursor: pointer; border: none; background: #007bff; color: #fff; font-size: 12px; }
+    .btn-back { background: #555; margin-bottom: 10px; }
+    pre { white-space: pre-wrap; font-size: 13px; }
+    select.status-select { font-size: 12px; padding: 3px; }
+    input.delivery-input { font-size: 12px; padding: 3px; }
+  </style>
+</head>
+<body>
+
+  <button class="btn btn-back" onclick="window.location.href='loginadmin_dashboard.html'">
+    ← Kembali ke Dashboard
+  </button>
+
+  <h2>Daftar Pesanan — Pet Paw</h2>
+  <p>Lihat semua pesanan yang masuk dari checkout keranjang.</p>
+
+  <table id="ordersTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Waktu</th>
+        <th>Nama</th>
+        <th>HP</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Jadwal Kirim</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="8">Memuat data...</td></tr>
+    </tbody>
+  </table>
+
+  <!-- area detail pesanan -->
+  <h3 style="margin-top:25px;">Detail Pesanan</h3>
+  <div id="orderDetail">
+    <p>Pilih tombol <strong>Detail</strong> pada salah satu pesanan.</p>
+  </div>
+
+<script>
+function formatRupiah(n){
+  n = n || 0;
+  return 'Rp' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+let ORDERS = [];
+
+function loadOrders(){
+  fetch("../api/get_orders.php")
+    .then(res => res.json())
+    .then(data => {
+      ORDERS = data;
+      renderOrders();
+    })
+    .catch(err => {
+      console.error(err);
+      const tbody = document.querySelector("#ordersTable tbody");
+      tbody.innerHTML = "<tr><td colspan='8'>Gagal memuat data pesanan.</td></tr>";
+    });
+}
+
+function renderOrders(){
+  const tbody = document.querySelector("#ordersTable tbody");
+  if (!ORDERS.length){
+    tbody.innerHTML = "<tr><td colspan='8'>Belum ada pesanan.</td></tr>";
+    return;
+  }
+
+  tbody.innerHTML = "";
+  ORDERS.forEach(order => {
+    const tr = document.createElement("tr");
+    tr.id = "row-" + order.id;
+
+    const status = order.status || "pending";
+    const delivery = order.delivery_date || "";
+
+    tr.innerHTML = `
+      <td>${order.id}</td>
+      <td>${order.created_at}</td>
+      <td>${order.customer_name}</td>
+      <td>${order.phone}</td>
+      <td>${formatRupiah(order.total)}</td>
+      <td>
+        <select class="status-select" onchange="updateOrder(${order.id})">
+          <option value="pending"    ${status==='pending'?'selected':''}>Pending</option>
+          <option value="on_process" ${status==='on_process'?'selected':''}>On Process</option>
+          <option value="shipped"    ${status==='shipped'?'selected':''}>Dikirim</option>
+          <option value="done"       ${status==='done'?'selected':''}>Selesai</option>
+          <option value="cancelled"  ${status==='cancelled'?'selected':''}>Batal</option>
+        </select>
+      </td>
+      <td>
+        <input type="date" class="delivery-input" value="${delivery}" onchange="updateOrder(${order.id})">
+      </td>
+      <td><button class="btn" onclick="showDetail(${order.id})">Detail</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateOrder(id){
+  const row = document.getElementById("row-" + id);
+  if (!row) return;
+
+  const statusSel = row.querySelector(".status-select");
+  const dateInput = row.querySelector(".delivery-input");
+
+  const status = statusSel ? statusSel.value : "pending";
+  const date   = dateInput ? dateInput.value : "";
+
+  const formData = new FormData();
+  formData.append("id", id);
+  formData.append("status", status);
+  formData.append("delivery_date", date);
+
+  fetch("../api/update_order_status.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status !== "success") {
+      alert("Gagal update pesanan: " + (res.message || ""));
+    } else {
+      // update di memory juga
+      const idx = ORDERS.findIndex(o => parseInt(o.id) === parseInt(id));
+      if (idx !== -1) {
+        ORDERS[idx].status = status;
+        ORDERS[idx].delivery_date = date;
+      }
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Terjadi error koneksi server");
+  });
+}
+
+function showDetail(id){
+  const box = document.getElementById("orderDetail");
+  const order = ORDERS.find(o => parseInt(o.id) === parseInt(id));
+  if (!order){
+    box.innerHTML = "<p>Pesanan tidak ditemukan.</p>";
+    return;
+  }
+  let items;
+  try { items = JSON.parse(order.items_json || "[]"); } catch(e){ items = []; }
+
+  let itemsHtml = "";
+  if (!items.length){
+    itemsHtml = "<em>Tidak ada item.</em>";
+  } else {
+    itemsHtml = "<ul>";
+    items.forEach(i => {
+      itemsHtml += `<li>${i.title} x${i.qty} (${formatRupiah(i.price)})</li>`;
+    });
+    itemsHtml += "</ul>";
+  }
+
+  box.innerHTML = `
+    <p><strong>ID Pesanan:</strong> ${order.id}</p>
+    <p><strong>Tanggal:</strong> ${order.created_at}</p>
+    <p><strong>Status:</strong> ${order.status || 'pending'}</p>
+    <p><strong>Jadwal kirim:</strong> ${order.delivery_date || '-'}</p>
+    <p><strong>Nama:</strong> ${order.customer_name}</p>
+    <p><strong>No HP:</strong> ${order.phone}</p>
+    <p><strong>Alamat:</strong><br>${order.address.replace(/\\n/g,"<br>")}</p>
+    <p><strong>Item:</strong><br>${itemsHtml}</p>
+    <p><strong>Total:</strong> ${formatRupiah(order.total)}</p>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", loadOrders);
+</script>
+
+</body>
+</html>

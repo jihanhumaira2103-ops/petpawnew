@@ -1,0 +1,55 @@
+/* Login page styles */
+body {
+    background: #FFE7C2;
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.box {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    width: 320px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #FF8A2B;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #ff7700;
+}
+
+h2 {
+    text-align: center;
+    color: #FF8A2B;
+}
+
+p {
+    margin-top: 10px;
+    text-align: center;
+}
+
+a {
+    color: #FF8A2B;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
